@@ -1,0 +1,825 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>ERICA 키우기</title>
+<meta name="description" content="에리카(Erica) 꽃을 닮은 화분 ERICA를 물과 햇빛, 영양으로 돌보며 씨앗부터 만개까지 키우는 화분 가꾸기 게임" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;1,500&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: light;
+    --bg: #EEE7DF;
+    --bg-soft: #E6DCD0;
+    --card: #FBF7F1;
+    --card-line: rgba(43,36,32,.10);
+    --ink: #2B2420;
+    --ink-soft: #766A5C;
+    --ink-faint: #9A8E7E;
+
+    --heather-100: #F5DEEC;
+    --heather-300: #E3A6CB;
+    --heather-400: #D97AAE;
+    --heather-600: #A8447A;
+    --heather-700: #8A3768;
+    --heather-800: #632952;
+
+    --sage-300: #B4C1A2;
+    --sage-500: #7E8E6C;
+    --sage-700: #526049;
+
+    --sand-300: #D9C6A4;
+    --sand-500: #B98F58;
+    --sand-700: #8A6438;
+    --soil: #3E2E20;
+
+    --good: #5F8B5C;
+    --warn: #C08A34;
+    --crit: #B24B3D;
+    --shadow: rgba(43,36,32,.20);
+    --focus: #7A4E86;
+
+    --bg-canvas: var(--bg);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --bg: #1E1922;
+      --bg-soft: #251E2A;
+      --card: #2A2230;
+      --card-line: rgba(243,236,230,.12);
+      --ink: #F2EAE3;
+      --ink-soft: #C7B9C6;
+      --ink-faint: #8E8092;
+
+      --heather-100: #4A2A3E;
+      --heather-300: #82406A;
+      --heather-400: #C767A0;
+      --heather-600: #E087B7;
+      --heather-700: #EBA4C8;
+      --heather-800: #F3C3DC;
+
+      --sage-300: #4F5D46;
+      --sage-500: #7C8C6E;
+      --sage-700: #9CB08A;
+
+      --sand-300: #6E5638;
+      --sand-500: #9C7947;
+      --sand-700: #C8A46E;
+      --soil: #241A12;
+
+      --good: #7FB07A;
+      --warn: #D9A24F;
+      --crit: #D9695A;
+      --shadow: rgba(0,0,0,.45);
+      --focus: #C79BD1;
+      --bg-canvas: var(--bg);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --bg: #1E1922;
+    --bg-soft: #251E2A;
+    --card: #2A2230;
+    --card-line: rgba(243,236,230,.12);
+    --ink: #F2EAE3;
+    --ink-soft: #C7B9C6;
+    --ink-faint: #8E8092;
+
+    --heather-100: #4A2A3E;
+    --heather-300: #82406A;
+    --heather-400: #C767A0;
+    --heather-600: #E087B7;
+    --heather-700: #EBA4C8;
+    --heather-800: #F3C3DC;
+
+    --sage-300: #4F5D46;
+    --sage-500: #7C8C6E;
+    --sage-700: #9CB08A;
+
+    --sand-300: #6E5638;
+    --sand-500: #9C7947;
+    --sand-700: #C8A46E;
+    --soil: #241A12;
+
+    --good: #7FB07A;
+    --warn: #D9A24F;
+    --crit: #D9695A;
+    --shadow: rgba(0,0,0,.45);
+    --focus: #C79BD1;
+    --bg-canvas: var(--bg);
+  }
+
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    background: var(--bg-canvas);
+    color: var(--ink);
+    font-family: "Karla", ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,h2,h3{ font-family:"Fraunces", Georgia, serif; margin:0; }
+
+  .stage{
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 28px 20px 48px;
+    padding-block-start: calc(28px + env(safe-area-inset-top, 0px));
+    padding-block-end: calc(48px + env(safe-area-inset-bottom, 0px));
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+  }
+
+  .topbar{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:16px;
+  }
+  .brand{ display:flex; align-items:flex-start; gap:12px; }
+  .brand-mark{
+    width:38px; height:38px; flex:0 0 auto;
+    border-radius:50%;
+    background: linear-gradient(155deg, var(--heather-400), var(--heather-700));
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 3px 10px var(--shadow);
+  }
+  .brand-mark svg{ width:20px; height:20px; }
+  .brand h1{ font-size: 1.7rem; letter-spacing:.02em; font-weight:600; }
+  .brand .subtitle{ margin:2px 0 0; font-size:.82rem; color:var(--ink-soft); letter-spacing:.02em; }
+
+  .icon-btn{
+    width:38px; height:38px; border-radius:50%;
+    border:1px solid var(--card-line);
+    background: var(--card);
+    color: var(--ink);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    flex:0 0 auto;
+  }
+  .icon-btn svg{ width:18px; height:18px; }
+  .icon-btn:focus-visible, button:focus-visible, .notes-toggle:focus-visible{
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  .layout{
+    display:grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 18px;
+    align-items:stretch;
+  }
+  @media (max-width: 680px){
+    .layout{ grid-template-columns: 1fr; }
+  }
+
+  .pot-card, .care-card, .notes-card{
+    background: var(--card);
+    border:1px solid var(--card-line);
+    border-radius: 20px;
+    box-shadow: 0 10px 28px -18px var(--shadow);
+  }
+
+  .pot-card{
+    padding: 18px 18px 22px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    position:relative;
+    overflow:hidden;
+  }
+  .pot-scene{
+    width:100%;
+    max-width: 300px;
+    aspect-ratio: 300 / 340;
+  }
+  .pot-scene svg{ width:100%; height:100%; display:block; }
+
+  #plantGroup{
+    transform-origin: 150px 246px;
+    animation: sway 6.5s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce){
+    #plantGroup{ animation: none; }
+  }
+  @keyframes sway{
+    0%,100%{ transform: rotate(-1.1deg); }
+    50%{ transform: rotate(1.1deg); }
+  }
+  #plantGroup.wilt{
+    filter: saturate(.55) brightness(.92);
+  }
+  #plantGroup.wilt .bell, #plantGroup.wilt .bud{
+    opacity:.72;
+  }
+
+  .stage-label{
+    margin:4px 0 0;
+    font-family:"Fraunces", serif;
+    font-style: italic;
+    font-weight:500;
+    font-size:1.15rem;
+    color: var(--heather-600);
+  }
+  .day-count{
+    margin:0;
+    font-size:.78rem;
+    color: var(--ink-faint);
+    letter-spacing:.03em;
+    text-transform:uppercase;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .care-card{
+    padding: 20px;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+  .gauges{ display:flex; flex-direction:column; gap:12px; }
+  .gauge-head{
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-size:.82rem; margin-bottom:5px;
+  }
+  .gauge-head .label{ display:flex; align-items:center; gap:6px; color:var(--ink-soft); }
+  .gauge-head .label svg{ width:14px; height:14px; }
+  .gauge-head .val{ font-variant-numeric: tabular-nums; font-weight:600; }
+  .gauge-track{
+    height:9px; border-radius:6px;
+    background: var(--bg-soft);
+    overflow:hidden;
+    border:1px solid var(--card-line);
+  }
+  .gauge-fill{
+    height:100%; border-radius:6px;
+    transition: width .5s ease, background-color .4s ease;
+  }
+  .gauge-fill.water{ background: linear-gradient(90deg, var(--sage-300), #6FA3C0); }
+  .gauge-fill.sun{ background: linear-gradient(90deg, #E8C067, #D99A3A); }
+  .gauge-fill.growth{ background: linear-gradient(90deg, var(--heather-300), var(--heather-600)); }
+
+  .actions{ display:flex; flex-direction:column; gap:9px; margin-top:4px; }
+  .actions button{
+    display:flex; align-items:center; gap:10px;
+    padding: 11px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--card-line);
+    background: var(--bg-soft);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: .92rem;
+    font-weight:600;
+    cursor:pointer;
+    text-align:left;
+    transition: transform .12s ease, background-color .2s ease;
+  }
+  .actions button svg{ width:18px; height:18px; flex:0 0 auto; color: var(--heather-600); }
+  .actions button:hover:not(:disabled){ background: var(--heather-100); }
+  .actions button:active:not(:disabled){ transform: scale(.98); }
+  .actions button:disabled{ opacity:.45; cursor:not-allowed; }
+  .actions button .desc{
+    font-weight:400; font-size:.76rem; color:var(--ink-faint);
+    margin-left:auto; text-align:right; white-space:nowrap;
+  }
+
+  .hint{
+    margin:0; font-size:.82rem; color: var(--ink-soft);
+    min-height: 1.4em;
+    border-top: 1px solid var(--card-line);
+    padding-top: 12px;
+  }
+  .hint.attn{ color: var(--warn); font-weight:600; }
+
+  .notes-card{ padding: 4px 0; overflow:hidden; }
+  .notes-toggle{
+    width:100%;
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 14px 20px;
+    background:none; border:none;
+    font-family:"Fraunces", serif;
+    font-weight:600; font-size:1rem; color:var(--ink);
+    cursor:pointer;
+  }
+  .notes-toggle svg{ width:16px; height:16px; transition: transform .25s ease; color: var(--ink-faint); }
+  .notes-toggle[aria-expanded="true"] svg{ transform: rotate(180deg); }
+  .notes-body{
+    padding: 0 20px 18px;
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px 18px;
+  }
+  @media (max-width:560px){ .notes-body{ grid-template-columns:1fr; } }
+  .note-item{ font-size:.85rem; line-height:1.5; color: var(--ink-soft); }
+  .note-item b{ color:var(--ink); font-weight:600; }
+
+  .foot{
+    text-align:center;
+    font-size:.74rem;
+    color: var(--ink-faint);
+    letter-spacing:.02em;
+  }
+  .foot a{ color: var(--heather-600); }
+
+  .sr-only{
+    position:absolute; width:1px; height:1px;
+    padding:0; margin:-1px; overflow:hidden;
+    clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+
+  .petal{
+    animation: fall 4.2s linear forwards;
+  }
+  @keyframes fall{
+    0%{ transform: translateY(0) rotate(0deg); opacity:.9; }
+    100%{ transform: translateY(70px) rotate(140deg); opacity:0; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .petal{ animation: none; opacity:0; }
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 3c2.4 0 4 2.2 4 5.2S14.4 15 12 15s-4-3.6-4-6.8S9.6 3 12 3Z" fill="#fff" opacity=".92"/></svg>
+      </span>
+      <div>
+        <h1>ERICA</h1>
+        <p class="subtitle">에리카속(Erica) 화분 가꾸기</p>
+      </div>
+    </div>
+    <button id="themeToggle" class="icon-btn" aria-label="테마 전환" title="테마 전환">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <circle cx="12" cy="12" r="4.4"/>
+        <path d="M12 2.5v2.4M12 19.1v2.4M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/>
+      </svg>
+    </button>
+  </header>
+
+  <div class="layout">
+    <section class="pot-card" aria-label="ERICA 화분 모습">
+      <div class="pot-scene">
+        <svg id="plantSvg" viewBox="0 0 300 340" role="img" aria-labelledby="plantTitle">
+          <title id="plantTitle">ERICA 화분</title>
+        </svg>
+      </div>
+      <p class="stage-label" id="stageLabel">씨앗</p>
+      <p class="day-count" id="dayCount">1일째 함께하는 중</p>
+    </section>
+
+    <section class="care-card" aria-label="ERICA 돌보기">
+      <div class="gauges">
+        <div class="gauge" data-stat="water">
+          <div class="gauge-head">
+            <span class="label">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2s6.5 7.6 6.5 12.2A6.5 6.5 0 1 1 5.5 14.2C5.5 9.6 12 2 12 2Z"/></svg>
+              물
+            </span>
+            <span class="val"><span id="waterVal">70</span></span>
+          </div>
+          <div class="gauge-track"><div class="gauge-fill water" id="waterFill" style="width:70%"></div></div>
+        </div>
+        <div class="gauge" data-stat="sun">
+          <div class="gauge-head">
+            <span class="label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M4.5 4.5l1.5 1.5M18 18l1.5 1.5M3 12h2M19 12h2M4.5 19.5L6 18M18 6l1.5-1.5" stroke-linecap="round"/></svg>
+              햇빛
+            </span>
+            <span class="val"><span id="sunVal">70</span></span>
+          </div>
+          <div class="gauge-track"><div class="gauge-fill sun" id="sunFill" style="width:70%"></div></div>
+        </div>
+        <div class="gauge" data-stat="growth">
+          <div class="gauge-head">
+            <span class="label">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c2.4 0 4 2.2 4 5.2S14.4 14 12 14s-4-3.6-4-6.8S9.6 2 12 2Zm0 12v8m-4 0h8" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>
+              성장도
+            </span>
+            <span class="val"><span id="growthVal">0</span></span>
+          </div>
+          <div class="gauge-track"><div class="gauge-fill growth" id="growthFill" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="btnWater" type="button">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2s6.5 7.6 6.5 12.2A6.5 6.5 0 1 1 5.5 14.2C5.5 9.6 12 2 12 2Z"/></svg>
+          물 주기
+          <span class="desc">+22</span>
+        </button>
+        <button id="btnSun" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M4.5 4.5l1.5 1.5M18 18l1.5 1.5M3 12h2M19 12h2M4.5 19.5L6 18M18 6l1.5-1.5" stroke-linecap="round"/></svg>
+          햇빛 쬐기
+          <span class="desc">+22</span>
+        </button>
+        <button id="btnFeed" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18M4 12h16" stroke-linecap="round"/><circle cx="12" cy="12" r="8.5"/></svg>
+          영양 주기
+          <span class="desc" id="feedDesc">물·햇빛 15 필요</span>
+        </button>
+      </div>
+
+      <p class="hint" id="hintText" aria-live="polite"></p>
+    </section>
+  </div>
+
+  <section class="notes-card" aria-label="에리카 식물 정보">
+    <button class="notes-toggle" id="notesToggle" aria-expanded="false" aria-controls="notesBody">
+      에리카 식물도감
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div class="notes-body" id="notesBody" hidden>
+      <p class="note-item"><b>분류</b> 진달래과(Ericaceae) 에리카속(Erica) — 전 세계 800여 종이 속한 상록 관목류.</p>
+      <p class="note-item"><b>원산지</b> 대부분 남아프리카 케이프 지역, 일부는 유럽·지중해 황야(히스랜드)에서 자생.</p>
+      <p class="note-item"><b>잎</b> 바늘처럼 가늘고 짧은 잎이 줄기를 촘촘히 감싸며 돌려나기로 자람.</p>
+      <p class="note-item"><b>꽃</b> 종(bell) 또는 항아리 모양의 아주 작은 꽃이 가지 끝마다 다닥다닥 뭉쳐서 핌.</p>
+      <p class="note-item"><b>꽃색</b> 분홍·자주·마젠타 계열이 대표적이며, 흰색 품종도 있음.</p>
+      <p class="note-item"><b>개화기</b> 품종에 따라 다르지만 가을~겨울에 피는 종이 많아 겨울 화분으로 인기.</p>
+      <p class="note-item"><b>관리</b> 촉촉한 흙과 밝은 빛을 좋아하지만 과습에는 약함.</p>
+      <p class="note-item"><b>토양</b> 진달래과 특성상 약산성 토양을 선호함.</p>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>ERICA · 진달래과 상록 관목 에리카(Erica)를 본떠 만든 화분 가꾸기 · 기록은 이 기기에만 저장돼요</p>
+  </footer>
+
+  <div id="liveRegion" class="sr-only" aria-live="polite"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var STORAGE_KEY = "erica-pot-state-v2";
+  var THEME_KEY = "erica-pot-theme";
+
+  var STAGE_NAMES = ["씨앗", "새싹", "어린 가지", "봉오리", "개화", "만개"];
+  var STAGE_THRESHOLDS = [0, 12, 32, 56, 76, 94];
+
+  var TIPS = [
+    "에리카(Erica)는 진달래과에 속한 상록 관목으로, 전 세계에 800종 넘게 분포해요.",
+    "에리카의 잎은 바늘처럼 가늘어서, 멀리서 보면 가지 전체가 솔잎처럼 보여요.",
+    "에리카 꽃은 작은 종 또는 항아리 모양으로, 가지 끝에 촘촘히 모여 피어요.",
+    "대부분의 에리카는 남아프리카 케이프 지역이 고향이에요.",
+    "유럽의 황야(히스랜드)를 뒤덮은 보랏빛 꽃도 에리카속 식물이에요.",
+    "에리카는 진달래과답게 약산성 흙을 좋아해요.",
+    "많은 에리카 품종은 가을에서 겨울 사이에 꽃을 피워, 겨울 화분으로 사랑받아요.",
+    "에리카는 촉촉한 흙을 좋아하지만, 물이 고이면 뿌리가 상하기 쉬워요."
+  ];
+
+  var $ = function(id){ return document.getElementById(id); };
+  var svg = $("plantSvg");
+  var els = {
+    waterVal: $("waterVal"), sunVal: $("sunVal"), growthVal: $("growthVal"),
+    waterFill: $("waterFill"), sunFill: $("sunFill"), growthFill: $("growthFill"),
+    stageLabel: $("stageLabel"), dayCount: $("dayCount"),
+    btnWater: $("btnWater"), btnSun: $("btnSun"), btnFeed: $("btnFeed"),
+    feedDesc: $("feedDesc"), hint: $("hintText"), live: $("liveRegion"),
+    notesToggle: $("notesToggle"), notesBody: $("notesBody"),
+    themeToggle: $("themeToggle")
+  };
+
+  function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
+
+  function mulberry32(seed){
+    var t = seed >>> 0;
+    return function(){
+      t |= 0; t = (t + 0x6D2B79F5) | 0;
+      var r = Math.imul(t ^ (t >>> 15), 1 | t);
+      r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
+      return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function loadState(){
+    var fallback = {
+      water: 70, sun: 70, growth: 0,
+      startTs: Date.now(), lastTs: Date.now(),
+      feedReadyTs: 0, lastStage: 0
+    };
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return fallback;
+      var parsed = JSON.parse(raw);
+      if(typeof parsed !== "object" || parsed === null) return fallback;
+      for(var k in fallback){ if(typeof parsed[k] !== "number"){ parsed[k] = fallback[k]; } }
+      return parsed;
+    }catch(e){ return fallback; }
+  }
+
+  function saveState(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+
+  var state = loadState();
+
+  function applyDecay(){
+    var now = Date.now();
+    var minutes = (now - state.lastTs) / 60000;
+    if(minutes > 0){
+      var cappedMinutes = Math.min(minutes, 60 * 24 * 3);
+      var decay = cappedMinutes * 0.85;
+      state.water = clamp(state.water - decay, 0, 100);
+      state.sun = clamp(state.sun - decay, 0, 100);
+      if(state.water <= 5 && state.sun <= 5){
+        state.growth = clamp(state.growth - cappedMinutes * 0.04, 0, 100);
+      }
+    }
+    state.lastTs = now;
+  }
+
+  function stageFromGrowth(g){
+    var stage = 0;
+    for(var i = STAGE_THRESHOLDS.length - 1; i >= 0; i--){
+      if(g >= STAGE_THRESHOLDS[i]){ stage = i; break; }
+    }
+    return stage;
+  }
+
+  // ---------- plant rendering ----------
+  var rnd = mulberry32(20260921);
+  var BRANCH_COUNT = 7;
+  var ORIGIN = {x: 150, y: 208};
+  var branches = (function(){
+    var arr = [];
+    for(var i = 0; i < BRANCH_COUNT; i++){
+      var offsetIdx = i - 3;
+      var angle = -90 + offsetIdx * 13 + (rnd() - 0.5) * 9;
+      var length = 74 + rnd() * 52 - Math.abs(offsetIdx) * 3.5;
+      var curveBend = (rnd() - 0.5) * 26;
+      var flowerColorSeed = rnd();
+      arr.push({ angle: angle, length: length, curveBend: curveBend, colorSeed: flowerColorSeed });
+    }
+    return arr;
+  })();
+  var revealOrder = [3, 2, 4, 1, 5, 0, 6];
+
+  function polar(cx, cy, angleDeg, len){
+    var rad = angleDeg * Math.PI / 180;
+    return { x: cx + Math.cos(rad) * len, y: cy + Math.sin(rad) * len };
+  }
+
+  function bellMarkup(cx, cy, size, rotation, color){
+    var rim = "var(--heather-800)";
+    return (
+      '<g transform="rotate(' + rotation.toFixed(1) + ' ' + cx.toFixed(1) + ' ' + cy.toFixed(1) + ')">' +
+        '<ellipse class="bell" cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" rx="' + (size*0.5).toFixed(1) + '" ry="' + (size*0.78).toFixed(1) + '" fill="' + color + '"/>' +
+        '<ellipse cx="' + cx.toFixed(1) + '" cy="' + (cy + size*0.52).toFixed(1) + '" rx="' + (size*0.44).toFixed(1) + '" ry="' + (size*0.2).toFixed(1) + '" fill="' + rim + '" opacity="0.55"/>' +
+        '<circle cx="' + (cx - size*0.16).toFixed(1) + '" cy="' + (cy - size*0.28).toFixed(1) + '" r="' + (size*0.11).toFixed(1) + '" fill="#fff" opacity="0.45"/>' +
+      '</g>'
+    );
+  }
+
+  function flowerCluster(tipX, tipY, dirAngle, count, baseSize, colorSeed){
+    var palette = ["var(--heather-600)", "var(--heather-400)", "var(--heather-300)", "#F6E4EF"];
+    var out = "";
+    for(var i = 0; i < count; i++){
+      var jitter = (i - (count-1)/2) * 9 + (rnd()-0.5) * 5;
+      var pos = polar(tipX, tipY, dirAngle + jitter * 0.4, baseSize * 0.55 * (i%2===0?1:0.6));
+      var colorIdx = Math.floor(((colorSeed + i*0.31) % 1) * palette.length);
+      var color = palette[Math.min(colorIdx, palette.length-1)];
+      var size = baseSize * (0.82 + (i%3) * 0.12);
+      out += bellMarkup(pos.x, pos.y + i*1.5, size, dirAngle + jitter, color);
+    }
+    return out;
+  }
+
+  function needleMarkup(x, y, dirAngle, len, color){
+    var a1 = polar(x, y, dirAngle - 34, len);
+    var a2 = polar(x, y, dirAngle + 34, len);
+    return (
+      '<line x1="' + x.toFixed(1) + '" y1="' + y.toFixed(1) + '" x2="' + a1.x.toFixed(1) + '" y2="' + a1.y.toFixed(1) + '" stroke="' + color + '" stroke-width="1.6" stroke-linecap="round"/>' +
+      '<line x1="' + x.toFixed(1) + '" y1="' + y.toFixed(1) + '" x2="' + a2.x.toFixed(1) + '" y2="' + a2.y.toFixed(1) + '" stroke="' + color + '" stroke-width="1.6" stroke-linecap="round"/>'
+    );
+  }
+
+  function potMarkup(){
+    return (
+      '<ellipse cx="150" cy="214" rx="50" ry="9" fill="var(--soil)"/>' +
+      '<path d="M96 214 L204 214 L188 300 L112 300 Z" fill="var(--sand-500)" stroke="var(--sand-700)" stroke-width="2" stroke-linejoin="round"/>' +
+      '<path d="M92 210 L208 210 L204 220 L96 220 Z" fill="var(--sand-700)"/>' +
+      '<ellipse cx="150" cy="212" rx="55" ry="9" fill="none" stroke="var(--sand-700)" stroke-width="2"/>' +
+      '<ellipse cx="150" cy="208" rx="46" ry="7" fill="var(--soil)"/>'
+    );
+  }
+
+  function renderPlant(stage){
+    var visibleCount = [0, 1, 5, 7, 7, 7][stage];
+    var lengthFactor = stage === 0 ? 0 : stage === 1 ? 0.34 : stage === 2 ? 0.68 : 1;
+    var visible = revealOrder.slice(0, visibleCount);
+    var stemsMarkup = "", leavesMarkup = "", flowersMarkup = "";
+
+    visible.forEach(function(i){
+      var b = branches[i];
+      var len = b.length * lengthFactor;
+      if(len < 4) return;
+      var end = polar(ORIGIN.x, ORIGIN.y, b.angle, len);
+      var mid = polar(ORIGIN.x, ORIGIN.y, b.angle, len * 0.55);
+      var ctrl = { x: mid.x + b.curveBend * (lengthFactor), y: mid.y };
+      stemsMarkup += '<path d="M ' + ORIGIN.x + ' ' + ORIGIN.y + ' Q ' + ctrl.x.toFixed(1) + ' ' + ctrl.y.toFixed(1) + ' ' + end.x.toFixed(1) + ' ' + end.y.toFixed(1) + '" fill="none" stroke="var(--sage-700)" stroke-width="3" stroke-linecap="round"/>';
+
+      if(stage === 1){
+        leavesMarkup += needleMarkup(end.x, end.y, b.angle, 7, "var(--sage-500)");
+      } else if(stage >= 2){
+        var steps = stage >= 3 ? [0.32, 0.5, 0.68, 0.85] : [0.4, 0.7];
+        steps.forEach(function(t, si){
+          var p = polar(ORIGIN.x, ORIGIN.y, b.angle, len * t);
+          var col = si % 2 === 0 ? "var(--sage-500)" : "var(--sage-300)";
+          leavesMarkup += needleMarkup(p.x, p.y, b.angle, 9 + (si%2)*3, col);
+        });
+      }
+
+      if(stage === 3){
+        var budColor = (i % 2 === 0) ? "var(--heather-300)" : "var(--sage-500)";
+        flowersMarkup += '<circle class="bud" cx="' + end.x.toFixed(1) + '" cy="' + end.y.toFixed(1) + '" r="4.2" fill="' + budColor + '"/>';
+      } else if(stage === 4){
+        var bloomTip = (i % 3 !== 0);
+        if(bloomTip){
+          flowersMarkup += flowerCluster(end.x, end.y, b.angle, 3, 11, b.colorSeed);
+        } else {
+          flowersMarkup += '<circle class="bud" cx="' + end.x.toFixed(1) + '" cy="' + end.y.toFixed(1) + '" r="4.2" fill="var(--heather-300)"/>';
+        }
+      } else if(stage === 5){
+        flowersMarkup += flowerCluster(end.x, end.y, b.angle, 5, 12, b.colorSeed);
+        var midPoint = polar(ORIGIN.x, ORIGIN.y, b.angle, len * 0.6);
+        flowersMarkup += flowerCluster(midPoint.x, midPoint.y, b.angle, 2, 8, b.colorSeed + 0.4);
+      }
+    });
+
+    var seedMarkup = stage === 0 ? '<circle cx="150" cy="205" r="4" fill="var(--sage-700)"/>' : "";
+
+    svg.innerHTML =
+      '<title>ERICA 화분</title>' +
+      potMarkup() +
+      '<g id="plantGroup">' + stemsMarkup + leavesMarkup + flowersMarkup + seedMarkup + '</g>';
+  }
+
+  var lastRenderedStage = -1;
+
+  // ---------- petals (full bloom flourish) ----------
+  var petalTimer = null;
+  function maybeDropPetal(stage){
+    if(stage !== 5) return;
+    var group = document.getElementById("plantGroup");
+    if(!group) return;
+    var x = 90 + Math.random() * 120;
+    var y = 90 + Math.random() * 60;
+    var p = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+    p.setAttribute("class", "petal");
+    p.setAttribute("cx", x.toFixed(1));
+    p.setAttribute("cy", y.toFixed(1));
+    p.setAttribute("rx", "3.2");
+    p.setAttribute("ry", "2.1");
+    p.setAttribute("fill", "var(--heather-400)");
+    svg.appendChild(p);
+    setTimeout(function(){ if(p.parentNode) p.parentNode.removeChild(p); }, 4300);
+  }
+
+  // ---------- UI sync ----------
+  function announce(msg){ els.live.textContent = msg; }
+
+  function updateHint(stage){
+    if(state.water < 22){
+      els.hint.textContent = "흙이 말라가고 있어요. 물을 주세요.";
+      els.hint.classList.add("attn");
+      return;
+    }
+    if(state.sun < 22){
+      els.hint.textContent = "햇빛이 부족해요. 밝은 곳으로 옮겨 볼까요.";
+      els.hint.classList.add("attn");
+      return;
+    }
+    els.hint.classList.remove("attn");
+    if(stage === 5){
+      els.hint.textContent = "ERICA가 만개했어요. 가지마다 작은 종 모양 꽃이 가득해요.";
+      return;
+    }
+    var idx = Math.floor(Date.now() / 9000) % TIPS.length;
+    els.hint.textContent = TIPS[idx];
+  }
+
+  function render(){
+    var stage = stageFromGrowth(state.growth);
+
+    els.waterVal.textContent = Math.round(state.water);
+    els.sunVal.textContent = Math.round(state.sun);
+    els.growthVal.textContent = Math.round(state.growth);
+    els.waterFill.style.width = state.water + "%";
+    els.sunFill.style.width = state.sun + "%";
+    els.growthFill.style.width = state.growth + "%";
+
+    els.stageLabel.textContent = STAGE_NAMES[stage];
+    var days = Math.max(1, Math.floor((Date.now() - state.startTs) / 86400000) + 1);
+    els.dayCount.textContent = days + "일째 함께하는 중";
+
+    if(stage !== lastRenderedStage){
+      renderPlant(stage);
+      lastRenderedStage = stage;
+    }
+
+    var group = document.getElementById("plantGroup");
+    if(group){
+      var wilting = state.water < 15 || state.sun < 15;
+      group.classList.toggle("wilt", wilting);
+    }
+
+    var now = Date.now();
+    var feedRemain = state.feedReadyTs - now;
+    var feedReady = feedRemain <= 0;
+    var feedAffordable = state.water >= 15 && state.sun >= 15;
+    els.btnFeed.disabled = !(feedReady && feedAffordable);
+    if(!feedReady){
+      els.feedDesc.textContent = Math.ceil(feedRemain/1000) + "초 후 가능";
+    } else if(!feedAffordable){
+      els.feedDesc.textContent = "물·햇빛 15 필요";
+    } else {
+      els.feedDesc.textContent = "성장 +10";
+    }
+    els.btnWater.disabled = state.water >= 100;
+    els.btnSun.disabled = state.sun >= 100;
+
+    updateHint(stage);
+    saveState();
+  }
+
+  function careBonus(){
+    return (state.water >= 40 && state.sun >= 40) ? 3 : 1;
+  }
+
+  els.btnWater.addEventListener("click", function(){
+    applyDecay();
+    state.water = clamp(state.water + 22, 0, 100);
+    state.growth = clamp(state.growth + careBonus(), 0, 100);
+    announce("물을 주었어요.");
+    render();
+  });
+
+  els.btnSun.addEventListener("click", function(){
+    applyDecay();
+    state.sun = clamp(state.sun + 22, 0, 100);
+    state.growth = clamp(state.growth + careBonus(), 0, 100);
+    announce("햇빛을 쬐어 주었어요.");
+    render();
+  });
+
+  els.btnFeed.addEventListener("click", function(){
+    applyDecay();
+    if(state.water < 15 || state.sun < 15) return;
+    if(Date.now() < state.feedReadyTs) return;
+    state.water = clamp(state.water - 15, 0, 100);
+    state.sun = clamp(state.sun - 15, 0, 100);
+    state.growth = clamp(state.growth + 10, 0, 100);
+    state.feedReadyTs = Date.now() + 45000;
+    announce("영양을 주었어요.");
+    render();
+  });
+
+  els.notesToggle.addEventListener("click", function(){
+    var expanded = els.notesToggle.getAttribute("aria-expanded") === "true";
+    els.notesToggle.setAttribute("aria-expanded", String(!expanded));
+    els.notesBody.hidden = expanded;
+  });
+
+  function applyTheme(mode){
+    if(mode === "light" || mode === "dark"){
+      document.documentElement.setAttribute("data-theme", mode);
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+    }
+  }
+  var savedTheme = "system";
+  try{ savedTheme = localStorage.getItem(THEME_KEY) || "system"; }catch(e){}
+  applyTheme(savedTheme);
+  els.themeToggle.addEventListener("click", function(){
+    var order = ["system", "light", "dark"];
+    var next = order[(order.indexOf(savedTheme) + 1) % order.length];
+    savedTheme = next;
+    applyTheme(next);
+    try{ localStorage.setItem(THEME_KEY, next); }catch(e){}
+  });
+
+  applyDecay();
+  render();
+
+  setInterval(function(){
+    applyDecay();
+    render();
+    if(Math.random() < 0.4) maybeDropPetal(stageFromGrowth(state.growth));
+  }, 8000);
+
+  setInterval(function(){
+    els.btnFeed.disabled = els.btnFeed.disabled;
+    render();
+  }, 1000);
+})();
+</script>
+</body>
+</html>
